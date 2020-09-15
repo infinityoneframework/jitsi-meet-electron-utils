@@ -68,6 +68,8 @@ class RemoteControl {
     _setDisplayMetrics(sourceId) {
         const displays = remote.screen.getAllDisplays();
 
+        console.debug('displays', displays)
+
         switch(displays.length) {
             case 0:
                 this._display = undefined;
@@ -80,8 +82,9 @@ class RemoteControl {
             // eslint-disable-next-line no-case-declarations
             default: { // > 1 display
                 // Remove the type part from the sourceId
-                const parsedSourceId = sourceId.replace('screen:', '');
+                const parsedSourceId = sourceId.replace('screen:', '').replace(/\:\d+/, '');
                 const coordinates = sourceId2Coordinates(parsedSourceId);
+                console.debug('default case', parsedSourceId, coordinates)
                 if(coordinates) {
                     // Currently sourceId2Coordinates will return undefined for
                     // any OS except Windows. This code will be executed only on
@@ -93,6 +96,7 @@ class RemoteControl {
                             y: y + 1
                         });
 
+                    console.debug('display', display)
                     if (typeof display !== 'undefined') {
                         // We need to use x and y returned from sourceId2Coordinates because the ones returned from
                         // Electron don't seem to respect the scale factors of the other displays.
@@ -113,7 +117,7 @@ class RemoteControl {
                 } else {
                     // On Mac OS the sourceId = 'screen' + displayId.
                     // Try to match displayId with sourceId.
-                    const displayId = Number(parsedSourceId);
+                    const displayId = Number(parsedSourceId.replace(/\:\d+/, ''));
                     this._display
                         = displays.find(display => display.id === displayId);
                 }
